@@ -1,8 +1,12 @@
 package minhdo.swe.project.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -10,6 +14,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "posts")
+@Builder
+@AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class Post {
 
     @Id
@@ -19,37 +26,26 @@ public class Post {
     @Column(nullable = false, length = 300)
     private String title;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 10)
-    private PostType type;
-
     @Column(columnDefinition = "TEXT")
     private String body;
-
-    @Column(length = 2000)
-    private String url;
-
-    @Column(name = "image_url", length = 500)
-    private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "sub_id", nullable = false)
-    private Long subId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sub_id", nullable = false)
+    private Sub sub;
 
+    @Builder.Default
     @Column(nullable = false)
     private Integer score = 0;
 
+    @Builder.Default
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
 }

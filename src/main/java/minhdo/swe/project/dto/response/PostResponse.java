@@ -1,4 +1,4 @@
-package minhdo.swe.project.dto;
+package minhdo.swe.project.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,10 +10,7 @@ import java.time.LocalDateTime;
 public class PostResponse {
     private Long id;
     private String title;
-    private String type;
     private String body;
-    private String url;
-    private String imageUrl;
     private Long userId;
     private String username;
     private Long subId;

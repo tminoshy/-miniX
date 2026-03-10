@@ -2,7 +2,8 @@ package minhdo.swe.project.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import minhdo.swe.project.dto.*;
+import minhdo.swe.project.dto.request.*;
+import minhdo.swe.project.dto.response.*;
 import minhdo.swe.project.entity.User;
 import minhdo.swe.project.security.SecurityUtils;
 import minhdo.swe.project.service.SubService;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/subs")
+@RequestMapping("api/subs")
 @RequiredArgsConstructor
 public class SubController {
 

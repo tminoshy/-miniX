@@ -1,4 +1,4 @@
-package minhdo.swe.project.dto;
+package minhdo.swe.project.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

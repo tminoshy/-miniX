@@ -1,9 +1,9 @@
 package minhdo.swe.project.controller;
 
-import minhdo.swe.project.dto.AuthResponse;
-import minhdo.swe.project.dto.LoginRequest;
-import minhdo.swe.project.dto.RefreshTokenRequest;
-import minhdo.swe.project.dto.RegisterRequest;
+import minhdo.swe.project.dto.request.LoginRequest;
+import minhdo.swe.project.dto.request.RefreshTokenRequest;
+import minhdo.swe.project.dto.request.RegisterRequest;
+import minhdo.swe.project.dto.response.AuthResponse;
 import minhdo.swe.project.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("api/auth")
 public class AuthController {
 
     private final AuthService authService;

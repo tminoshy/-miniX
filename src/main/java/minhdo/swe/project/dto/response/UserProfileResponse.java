@@ -1,4 +1,4 @@
-package minhdo.swe.project.dto;
+package minhdo.swe.project.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +11,5 @@ public class UserProfileResponse {
     private Long id;
     private String username;
     private String avatarUrl;
-    private Integer karma;
     private LocalDateTime createdAt;
 }

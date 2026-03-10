@@ -1,4 +1,4 @@
-package minhdo.swe.project.dto;
+package minhdo.swe.project.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,17 +12,5 @@ public class CreatePostRequest {
     @Size(max = 300)
     private String title;
 
-    @NotNull
-    private String type; // "TEXT", "LINK", "IMAGE"
-
     private String body;
-
-    @Size(max = 2000)
-    private String url;
-
-    @Size(max = 500)
-    private String imageUrl;
-
-    @NotNull
-    private Long subId;
 }

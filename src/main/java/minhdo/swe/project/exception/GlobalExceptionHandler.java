@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest request) {
-        return buildResponse(HttpStatus.CONFLICT, "Username or email already exists", request);
+        return buildResponse(HttpStatus.CONFLICT, "Database constrain violation", request);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

@@ -1,10 +1,12 @@
 package minhdo.swe.project.service;
 
-import minhdo.swe.project.dto.AuthResponse;
-import minhdo.swe.project.dto.LoginRequest;
-import minhdo.swe.project.dto.RefreshTokenRequest;
-import minhdo.swe.project.dto.RegisterRequest;
+import lombok.RequiredArgsConstructor;
+import minhdo.swe.project.dto.request.LoginRequest;
+import minhdo.swe.project.dto.request.RefreshTokenRequest;
+import minhdo.swe.project.dto.request.RegisterRequest;
+import minhdo.swe.project.dto.response.AuthResponse;
 import minhdo.swe.project.entity.RefreshToken;
+import minhdo.swe.project.entity.Role;
 import minhdo.swe.project.entity.User;
 import minhdo.swe.project.repository.RefreshTokenRepository;
 import minhdo.swe.project.repository.UserRepository;
@@ -21,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -31,18 +34,6 @@ public class AuthService {
 
     @Value("${jwt.refresh-token-expiration}")
     private long refreshExpirationMs;
-
-    public AuthService(UserRepository userRepository,
-            RefreshTokenRepository refreshTokenRepository,
-            PasswordEncoder passwordEncoder,
-            JwtUtil jwtUtil,
-            AuthenticationManager authenticationManager) {
-        this.userRepository = userRepository;
-        this.refreshTokenRepository = refreshTokenRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
-        this.authenticationManager = authenticationManager;
-    }
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -56,7 +47,7 @@ public class AuthService {
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setKarma(0);
+        user.setRole(Role.USER);
 
         user = userRepository.save(user);
 
@@ -103,7 +94,6 @@ public class AuthService {
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getKarma(),
                 user.getCreatedAt());
         return new AuthResponse(accessToken, refreshTokenStr, userInfo);
     }

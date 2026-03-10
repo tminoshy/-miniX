@@ -1,4 +1,4 @@
-package minhdo.swe.project.dto;
+package minhdo.swe.project.dto.request;
 
 import lombok.Data;
 

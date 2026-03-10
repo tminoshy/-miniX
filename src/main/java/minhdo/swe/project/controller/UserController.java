@@ -1,6 +1,11 @@
 package minhdo.swe.project.controller;
 
-import minhdo.swe.project.dto.UserProfileResponse;
+import lombok.RequiredArgsConstructor;
+import minhdo.swe.project.dto.request.ChangePasswordRequest;
+import minhdo.swe.project.dto.response.UserProfileDetailResponse;
+import minhdo.swe.project.dto.response.UserProfileResponse;
+import minhdo.swe.project.entity.User;
+import minhdo.swe.project.security.SecurityUtils;
 import minhdo.swe.project.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -10,25 +15,29 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("api/users")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    private final SecurityUtils securityUtils;
 
     @GetMapping("/{username}")
     public ResponseEntity<UserProfileResponse> getProfile(@PathVariable String username) {
         return ResponseEntity.ok(userService.getProfile(username));
     }
 
-    @PutMapping("/me")
-    public ResponseEntity<UserProfileResponse> updateMe(
-            @AuthenticationPrincipal UserDetails principal,
-            @RequestBody Map<String, String> body) {
-        String avatarUrl = body.get("avatar_url");
-        return ResponseEntity.ok(userService.updateAvatar(principal.getUsername(), avatarUrl));
+    @GetMapping("/me")
+    public ResponseEntity<UserProfileDetailResponse> getMe() {
+        User currentUser = securityUtils.getCurrentUser();
+        UserProfileDetailResponse me = userService.getMe(currentUser);
+        return ResponseEntity.ok(me);
+    }
+
+    @PostMapping("/me/password")
+    public ResponseEntity<UserProfileDetailResponse> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest) {
+        User currentUser = securityUtils.getCurrentUser();
+        var me = userService.changePassword(currentUser, changePasswordRequest);
+        return ResponseEntity.ok(me);
     }
 }

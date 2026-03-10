@@ -33,9 +33,13 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/users/{username}").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/subs/{name}").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/users/{username}").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/subs/{name}").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui/**",      // covers index.html + all JS/CSS/images
+                                "/v3/api-docs/**"      // covers /v3/api-docs, /v3/api-docs.yaml, /v3/api-docs/swagger-config
+                        ).permitAll()
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

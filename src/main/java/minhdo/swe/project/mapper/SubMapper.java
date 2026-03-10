@@ -1,7 +1,7 @@
 package minhdo.swe.project.mapper;
 
-import minhdo.swe.project.dto.SubDetailResponse;
-import minhdo.swe.project.dto.SubResponse;
+import minhdo.swe.project.dto.response.SubDetailResponse;
+import minhdo.swe.project.dto.response.SubResponse;
 import minhdo.swe.project.entity.Sub;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

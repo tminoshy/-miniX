@@ -1,6 +1,9 @@
 package minhdo.swe.project.security;
 
+import minhdo.swe.project.entity.User;
+import minhdo.swe.project.exception.ResourceNotFoundException;
 import minhdo.swe.project.repository.UserRepository;
+import org.mapstruct.control.MappingControl;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,8 +19,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+    public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+
+        return new CustomUserDetails(user);
     }
 }

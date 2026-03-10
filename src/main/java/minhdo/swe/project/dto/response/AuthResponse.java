@@ -1,4 +1,4 @@
-package minhdo.swe.project.dto;
+package minhdo.swe.project.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,7 +18,6 @@ public class AuthResponse {
         private Long id;
         private String username;
         private String email;
-        private Integer karma;
         private LocalDateTime createdAt;
     }
 }
