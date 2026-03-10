@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class UpdateSubredditRequest {
+public class UpdateSubRequest {
     private String description;
     private String iconUrl;
 }

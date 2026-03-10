@@ -8,7 +8,7 @@ import java.util.List;
 public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByUserIdOrderByCreatedAtDesc(Long userId);
 
-    List<Post> findBySubredditIdOrderByCreatedAtDesc(Long subredditId);
+    List<Post> findBySubIdOrderByCreatedAtDesc(Long subId);
 
     List<Post> findByIsDeletedFalseOrderByCreatedAtDesc();
 }

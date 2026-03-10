@@ -11,26 +11,26 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "sub_members", uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "user_id", "subreddit_id" })
-})
+@Table(name = "sub")
 @EntityListeners(AuditingEntityListener.class)
-public class SubredditMember {
+public class Sub {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(unique = true, nullable = false, length = 21)
+    private String name;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "icon_url", length = 500)
+    private String iconUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subreddit_id", nullable = false)
-    private Subreddit subreddit;
-
-    @Column(nullable = false, length = 20)
-    private String role = "member";
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)

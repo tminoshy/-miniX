@@ -36,7 +36,7 @@ public class PostService {
         post.setUrl(request.getUrl());
         post.setImageUrl(request.getImageUrl());
         post.setUser(user);
-        post.setSubredditId(request.getSubredditId());
+        post.setSubId(request.getSubId());
 
         post = postRepository.save(post);
         return toPostResponse(post);
@@ -58,8 +58,8 @@ public class PostService {
                 .toList();
     }
 
-    public List<PostResponse> getPostsBySubreddit(Long subredditId) {
-        return postRepository.findBySubredditIdOrderByCreatedAtDesc(subredditId)
+    public List<PostResponse> getPostsBySub(Long subId) {
+        return postRepository.findBySubIdOrderByCreatedAtDesc(subId)
                 .stream()
                 .filter(p -> !p.getIsDeleted())
                 .map(this::toPostResponse)
@@ -94,7 +94,7 @@ public class PostService {
                 post.getImageUrl(),
                 post.getUser().getId(),
                 post.getUser().getUsername(),
-                post.getSubredditId(),
+                post.getSubId(),
                 post.getScore(),
                 post.getCreatedAt());
     }

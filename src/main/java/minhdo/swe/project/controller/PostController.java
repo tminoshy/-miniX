@@ -40,9 +40,9 @@ public class PostController {
         return ResponseEntity.ok(postService.getAllPosts());
     }
 
-    @GetMapping("/subreddit/{subredditId}")
-    public ResponseEntity<List<PostResponse>> getPostsBySubreddit(@PathVariable Long subredditId) {
-        return ResponseEntity.ok(postService.getPostsBySubreddit(subredditId));
+    @GetMapping("/sub/{subId}")
+    public ResponseEntity<List<PostResponse>> getPostsBySub(@PathVariable Long subId) {
+        return ResponseEntity.ok(postService.getPostsBySub(subId));
     }
 
     @GetMapping("/user/{userId}")

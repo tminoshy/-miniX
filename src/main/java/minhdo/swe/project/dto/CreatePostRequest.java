@@ -24,5 +24,5 @@ public class CreatePostRequest {
     private String imageUrl;
 
     @NotNull
-    private Long subredditId;
+    private Long subId;
 }

@@ -16,7 +16,7 @@ public class PostResponse {
     private String imageUrl;
     private Long userId;
     private String username;
-    private Long subredditId;
+    private Long subId;
     private Integer score;
     private LocalDateTime createdAt;
 }

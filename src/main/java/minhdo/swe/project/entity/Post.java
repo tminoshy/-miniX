@@ -36,8 +36,8 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "subreddit_id", nullable = false)
-    private Long subredditId;
+    @Column(name = "sub_id", nullable = false)
+    private Long subId;
 
     @Column(nullable = false)
     private Integer score = 0;
