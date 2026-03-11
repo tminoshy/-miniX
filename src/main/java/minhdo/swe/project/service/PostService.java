@@ -10,6 +10,7 @@ import minhdo.swe.project.entity.User;
 import minhdo.swe.project.exception.ResourceNotFoundException;
 import minhdo.swe.project.mapper.PostMapper;
 import minhdo.swe.project.repository.PostRepository;
+import minhdo.swe.project.repository.SubMemberRepository;
 import minhdo.swe.project.repository.SubRepository;
 import minhdo.swe.project.repository.UserRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,10 +26,15 @@ public class PostService {
     private final UserRepository userRepository;
     private final SubRepository subRepository;
     private final PostMapper postMapper;
+    private final SubMemberRepository subMemberRepository;
 
     public PostResponse createPost(User currentUser, String subName, CreatePostRequest request) {
         Sub sub = subRepository.findByName(subName)
                 .orElseThrow(() -> new ResourceNotFoundException("Sub", "name", subName));
+
+        if (!subMemberRepository.existsByUserAndSub(currentUser, sub)) {
+            throw new IllegalArgumentException("user is not in sub");
+        }
 
         Post post = postMapper.toEntity(request);
         post.setUser(currentUser);

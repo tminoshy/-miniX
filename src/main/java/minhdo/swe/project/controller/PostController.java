@@ -1,6 +1,7 @@
 package minhdo.swe.project.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import minhdo.swe.project.dto.request.CreatePostRequest;
 import minhdo.swe.project.dto.response.PostResponse;
 import minhdo.swe.project.entity.User;
@@ -16,15 +17,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/posts")
+@RequiredArgsConstructor
 public class PostController {
 
     private final PostService postService;
     private final SecurityUtils securityUtils;
-
-    public PostController(PostService postService, SecurityUtils securityUtils) {
-        this.postService = postService;
-        this.securityUtils = securityUtils;
-    }
 
     @PostMapping("/subs/{name}/posts")
     public ResponseEntity<PostResponse> createPost(
