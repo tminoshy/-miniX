@@ -22,7 +22,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public @Nullable String getPassword() {
-        return "";
+        return user.getPasswordHash();
     }
 
     @Override
