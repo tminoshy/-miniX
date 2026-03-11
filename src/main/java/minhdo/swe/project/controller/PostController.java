@@ -7,6 +7,8 @@ import minhdo.swe.project.dto.response.PostResponse;
 import minhdo.swe.project.entity.User;
 import minhdo.swe.project.security.SecurityUtils;
 import minhdo.swe.project.service.PostService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -37,10 +39,13 @@ public class PostController {
 //        return ResponseEntity.ok(postService.getPost(id));
 //    }
 //
-//    @GetMapping
-//    public ResponseEntity<List<PostResponse>> getAllPosts() {
-//        return ResponseEntity.ok(postService.getAllPosts());
-//    }
+    @GetMapping("/subs/{name}/posts")
+    public ResponseEntity<Page<PostResponse>> getAllPosts(
+            @PathVariable("name") String subName,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(postService.getPostsBySub(subName, pageable));
+    }
 //
 //    @GetMapping("/sub/{subId}")
 //    public ResponseEntity<List<PostResponse>> getPostsBySub(@PathVariable Long subId) {

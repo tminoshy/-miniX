@@ -1,14 +1,17 @@
 package minhdo.swe.project.repository;
 
 import minhdo.swe.project.entity.Post;
+import minhdo.swe.project.entity.Sub;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
-    List<Post> findByUserIdOrderByCreatedAtDesc(Long userId);
+    Page<Post> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 
-    List<Post> findBySubIdOrderByCreatedAtDesc(Long subId);
+    Page<Post> findBySubOrderByCreatedAtDesc(Sub sub, Pageable pageable);
 
-    List<Post> findByIsDeletedFalseOrderByCreatedAtDesc();
+    Page<Post> findByIsDeletedFalseOrderByCreatedAtDesc(Pageable pageable);
 }

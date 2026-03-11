@@ -13,6 +13,8 @@ import minhdo.swe.project.repository.PostRepository;
 import minhdo.swe.project.repository.SubMemberRepository;
 import minhdo.swe.project.repository.SubRepository;
 import minhdo.swe.project.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -52,20 +54,19 @@ public class PostService {
 //        return toPostResponse(post);
 //    }
 //
-//    public List<PostResponse> getAllPosts() {
+//    public Page<PostResponse> getAllPosts(Pageable pageable) {
 //        return postRepository.findByIsDeletedFalseOrderByCreatedAtDesc()
 //                .stream()
 //                .map(this::toPostResponse)
 //                .toList();
 //    }
 //
-//    public List<PostResponse> getPostsBySub(Long subId) {
-//        return postRepository.findBySubIdOrderByCreatedAtDesc(subId)
-//                .stream()
-//                .filter(p -> !p.getIsDeleted())
-//                .map(this::toPostResponse)
-//                .toList();
-//    }
+    public Page<PostResponse> getPostsBySub(String subName, Pageable pageable) {
+        Sub sub = subRepository.findByName(subName)
+                .orElseThrow(() -> new ResourceNotFoundException("Sub", "subName", subName));
+        return postRepository.findBySubOrderByCreatedAtDesc(sub, pageable)
+                .map(post -> postMapper.toPostResponse(post));
+    }
 //
 //    public List<PostResponse> getPostsByUser(Long userId) {
 //        return postRepository.findByUserIdOrderByCreatedAtDesc(userId)
