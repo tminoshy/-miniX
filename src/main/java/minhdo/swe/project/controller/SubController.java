@@ -7,9 +7,12 @@ import minhdo.swe.project.dto.response.*;
 import minhdo.swe.project.entity.User;
 import minhdo.swe.project.security.SecurityUtils;
 import minhdo.swe.project.service.SubService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.Map;
 
@@ -45,16 +48,24 @@ public class SubController {
     }
 
     @PostMapping("/{name}/join")
-    public ResponseEntity<Map<String, String>> joinSub(@PathVariable String name) {
+    public ResponseEntity<String> joinSub(@PathVariable String name) {
         User currentUser = securityUtils.getCurrentUser();
         subService.join(name, currentUser);
-        return ResponseEntity.ok(Map.of("message", "Joined successfully"));
+        return ResponseEntity.ok("Join successfully");
     }
 
     @DeleteMapping("/{name}/leave")
-    public ResponseEntity<Map<String, String>> leaveSub(@PathVariable String name) {
+    public ResponseEntity<String> leaveSub(@PathVariable String name) {
         User currentUser = securityUtils.getCurrentUser();
         subService.leave(name, currentUser);
-        return ResponseEntity.ok(Map.of("message", "Left successfully"));
+        return ResponseEntity.ok("Leave successfully");
+    }
+
+    @GetMapping("/{name}/members")
+    public ResponseEntity<Page<UserProfileResponse>> getAllUser(@PathVariable("name") String subName, Pageable pageable) {
+
+        var response = subService.showAllMember(subName, pageable);
+
+        return ResponseEntity.ok(response);
     }
 }

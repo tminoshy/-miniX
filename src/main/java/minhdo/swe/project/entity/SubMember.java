@@ -29,10 +29,16 @@ public class SubMember {
     @JoinColumn(name = "sub_id", nullable = false)
     private Sub sub;
 
-    @Column(nullable = false, length = 20)
-    private String role = "member";
+
+    @Enumerated(value = EnumType.STRING)
+    private Role role = Role.Member;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    public enum Role {
+        Member,
+        Moderator
+    }
 }
