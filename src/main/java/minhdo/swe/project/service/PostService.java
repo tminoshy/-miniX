@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import minhdo.swe.project.entity.Post;
 import minhdo.swe.project.entity.PostVote;
 import minhdo.swe.project.entity.User;
+import minhdo.swe.project.entity.VoteType;
 import minhdo.swe.project.mapper.PostMapper;
 import minhdo.swe.project.repository.PostRepository;
 import minhdo.swe.project.repository.PostVoteRepository;
@@ -70,10 +71,7 @@ public class PostService {
 
     @Transactional
     public PostResponse vote(Long postId, User user, VoteRequest request) {
-        short value = request.getValue();
-        if (value != 1 && value != -1) {
-            throw new IllegalArgumentException("Vote value must be 1 or -1");
-        }
+        VoteType newVote = request.getVoteType();
         Post post = postRepository.findById(postId)
                 .filter(p -> !p.getIsDeleted())
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", String.valueOf(postId)));
@@ -81,13 +79,18 @@ public class PostService {
         var existing = postVoteRepository.findByPostAndUser(post, user);
         if (existing.isPresent()) {
             PostVote vote = existing.get();
-            int oldValue = vote.getValue();
-            vote.setValue(value);
-            postVoteRepository.save(vote);
-            post.setScore(post.getScore() - oldValue + value);
+            VoteType oldVote = vote.getVoteType();
+            if (oldVote.equals(newVote)) {
+                postVoteRepository.delete(vote);
+                post.setScore(post.getScore() - oldVote.getValue());
+            } else {
+                vote.setVoteType(newVote);
+                postVoteRepository.save(vote);
+                post.setScore(post.getScore() - oldVote.getValue() + newVote.getValue());
+            }
         } else {
-            postVoteRepository.save(PostVote.builder().post(post).user(user).value(value).build());
-            post.setScore(post.getScore() + value);
+            postVoteRepository.save(PostVote.builder().post(post).user(user).voteType(newVote).build());
+            post.setScore(post.getScore() + newVote.getValue());
         }
         postRepository.save(post);
         return postMapper.toPostResponse(post);
@@ -101,7 +104,7 @@ public class PostService {
 
         PostVote vote = postVoteRepository.findByPostAndUser(post, user)
                 .orElseThrow(() -> new IllegalArgumentException("You have not voted on this post"));
-        post.setScore(post.getScore() - vote.getValue());
+        post.setScore(post.getScore() - vote.getVoteType().getValue());
         postVoteRepository.delete(vote);
         postRepository.save(post);
     }

@@ -26,6 +26,7 @@ public class PostVote {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Short value; // +1 or -1
+    private VoteType voteType;
 }
