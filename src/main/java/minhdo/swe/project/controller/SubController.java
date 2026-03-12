@@ -6,15 +6,13 @@ import minhdo.swe.project.dto.request.*;
 import minhdo.swe.project.dto.response.*;
 import minhdo.swe.project.entity.User;
 import minhdo.swe.project.security.SecurityUtils;
+import minhdo.swe.project.service.PostService;
 import minhdo.swe.project.service.SubService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("api/subs")
@@ -23,6 +21,7 @@ public class SubController {
 
     private final SubService subService;
     private final SecurityUtils securityUtils;
+    private final PostService postService;
 
     @PostMapping
     public ResponseEntity<SubResponse> createSub(
@@ -67,5 +66,26 @@ public class SubController {
         var response = subService.showAllMember(subName, pageable);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{name}/posts")
+    public ResponseEntity<PostResponse> createPost(
+            @PathVariable("name") String subName,
+            @Valid @RequestBody CreatePostRequest request) {
+        User user = securityUtils.getCurrentUser();
+        PostResponse response = subService.createPost(user, subName, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    //    @GetMapping("/{id}")
+//    public ResponseEntity<PostResponse> getPost(@PathVariable Long id) {
+//        return ResponseEntity.ok(getPost(id));
+//    }
+//
+    @GetMapping("/{name}/posts")
+    public ResponseEntity<Page<PostResponse>> getAllPosts(
+            @PathVariable("name") String subName,
+            Pageable pageable) {
+        return ResponseEntity.ok(subService.getPostsBySub(subName, pageable));
     }
 }

@@ -40,6 +40,9 @@ public class SecurityConfig {
                                 "/swagger-ui/**",      // covers index.html + all JS/CSS/images
                                 "/v3/api-docs/**"      // covers /v3/api-docs, /v3/api-docs.yaml, /v3/api-docs/swagger-config
                         ).permitAll()
+                        .requestMatchers(
+                                "/error"
+                        ).permitAll()
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

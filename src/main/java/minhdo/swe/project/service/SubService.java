@@ -3,12 +3,15 @@ package minhdo.swe.project.service;
 import lombok.RequiredArgsConstructor;
 import minhdo.swe.project.dto.request.*;
 import minhdo.swe.project.dto.response.*;
+import minhdo.swe.project.entity.Post;
 import minhdo.swe.project.entity.Sub;
 import minhdo.swe.project.entity.SubMember;
 import minhdo.swe.project.entity.User;
 import minhdo.swe.project.exception.ResourceNotFoundException;
+import minhdo.swe.project.mapper.PostMapper;
 import minhdo.swe.project.mapper.SubMapper;
 import minhdo.swe.project.mapper.UserMapper;
+import minhdo.swe.project.repository.PostRepository;
 import minhdo.swe.project.repository.SubMemberRepository;
 import minhdo.swe.project.repository.SubRepository;
 import org.springframework.data.domain.Page;
@@ -29,6 +32,8 @@ public class SubService {
     private final SubMapper subMapper;
     private final UserMapper userMapper;
     private final SubMemberRepository subMemberRepository;
+    private final PostMapper postMapper;
+    private final PostRepository postRepository;
 
     @Transactional
     public SubResponse create(User user, CreateSubRequest request) {
@@ -123,5 +128,43 @@ public class SubService {
 
         return subMemberRepository.findAllBySub(sub, pageable)
                 .map(subMember -> userMapper.toProfileResponse(subMember.getUser()));
+    }
+
+    public PostResponse createPost(User currentUser, String subName, CreatePostRequest request) {
+        Sub sub = subRepository.findByName(subName)
+                .orElseThrow(() -> new ResourceNotFoundException("Sub", "name", subName));
+
+        if (!subMemberRepository.existsByUserAndSub(currentUser, sub)) {
+            throw new IllegalArgumentException("user is not in sub");
+        }
+
+        Post post = postMapper.toEntity(request);
+        post.setUser(currentUser);
+        post.setSub(sub);
+
+        return postMapper.toPostResponse(postRepository.save(post));
+    }
+
+    //    public PostResponse getPost(Long id) {
+//        Post post = postRepository.findById(id)
+//                .orElseThrow(() -> new IllegalArgumentException("Post not found: " + id));
+//        if (post.getIsDeleted()) {
+//            throw new IllegalArgumentException("Post has been deleted");
+//        }
+//        return toPostResponse(post);
+//    }
+//
+//    public Page<PostResponse> getAllPosts(Pageable pageable) {
+//        return postRepository.findByIsDeletedFalseOrderByCreatedAtDesc()
+//                .stream()
+//                .map(this::toPostResponse)
+//                .toList();
+//    }
+//
+    public Page<PostResponse> getPostsBySub(String subName, Pageable pageable) {
+        Sub sub = subRepository.findByName(subName)
+                .orElseThrow(() -> new ResourceNotFoundException("Sub", "subName", subName));
+        return postRepository.findBySubOrderByCreatedAtDesc(sub, pageable)
+                .map(postMapper::toPostResponse);
     }
 }

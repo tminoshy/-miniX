@@ -2,11 +2,15 @@ package minhdo.swe.project.controller;
 
 import lombok.RequiredArgsConstructor;
 import minhdo.swe.project.dto.request.ChangePasswordRequest;
+import minhdo.swe.project.dto.response.PostResponse;
 import minhdo.swe.project.dto.response.UserProfileDetailResponse;
 import minhdo.swe.project.dto.response.UserProfileResponse;
 import minhdo.swe.project.entity.User;
 import minhdo.swe.project.security.SecurityUtils;
+import minhdo.swe.project.service.PostService;
 import minhdo.swe.project.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,7 +24,13 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final PostService postService;
     private final SecurityUtils securityUtils;
+
+    @GetMapping("/{id}/posts")
+    public ResponseEntity<Page<PostResponse>> getUserPosts(@PathVariable Long id, Pageable pageable) {
+        return ResponseEntity.ok(postService.getPostsByUser(id, pageable));
+    }
 
     @GetMapping("/{username}")
     public ResponseEntity<UserProfileResponse> getProfile(@PathVariable String username) {
