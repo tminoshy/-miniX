@@ -2,19 +2,11 @@ package minhdo.swe.project.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import minhdo.swe.project.dto.request.CreateCommentRequest;
 import minhdo.swe.project.dto.request.UpdatePostRequest;
-import minhdo.swe.project.dto.request.VoteRequest;
-import minhdo.swe.project.dto.response.CommentResponse;
 import minhdo.swe.project.dto.response.PostResponse;
 import minhdo.swe.project.entity.User;
 import minhdo.swe.project.security.SecurityUtils;
-import minhdo.swe.project.service.CommentService;
 import minhdo.swe.project.service.PostService;
-import minhdo.swe.project.service.VoteService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,9 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
-    private final VoteService voteService;
     private final SecurityUtils securityUtils;
-    private final CommentService commentService;
 
     @GetMapping("/{id}")
     public ResponseEntity<PostResponse> getPostById(@PathVariable Long id) {
@@ -45,33 +35,6 @@ public class PostController {
     public ResponseEntity<Void> deletePost(@PathVariable Long id) {
         postService.deletePost(id, securityUtils.getCurrentUser());
         return ResponseEntity.noContent().build();
-    }
-
-
-
-    @PostMapping("/{id}/vote")
-    public ResponseEntity<PostResponse> vote(
-            @PathVariable Long id,
-            @Valid @RequestBody VoteRequest request) {
-        return ResponseEntity.ok(voteService.vote(id, securityUtils.getCurrentUser(), request));
-    }
-
-    @DeleteMapping("/{id}/vote")
-    public ResponseEntity<Void> removeVote(@PathVariable Long id) {
-        voteService.removeVote(id, securityUtils.getCurrentUser());
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{id}/comments")
-    public ResponseEntity<Page<CommentResponse>> getComments(@PathVariable("id") Long postId, Pageable pageable) {
-        return ResponseEntity.ok(commentService.getCommentsByPost(postId, pageable));
-    }
-
-    @PostMapping("/{id}/comments")
-    public ResponseEntity<CommentResponse> createComment(@PathVariable("id") Long postId, CreateCommentRequest request) {
-        User currentUser = securityUtils.getCurrentUser();
-        CommentResponse response = commentService.createComment(currentUser, postId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     //
