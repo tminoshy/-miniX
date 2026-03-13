@@ -6,12 +6,11 @@ import minhdo.swe.project.entity.Post;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = UserMapper.class)
 public interface PostMapper {
 
-    @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "user", target = "userInfo")
     @Mapping(source = "sub.id", target = "subId")
-    @Mapping(source = "user.username", target = "username")
     PostResponse toPostResponse(Post post);
 
     @Mapping(target = "id", ignore = true)

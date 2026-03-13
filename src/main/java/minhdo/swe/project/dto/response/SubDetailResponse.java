@@ -12,15 +12,8 @@ public class SubDetailResponse {
     private String name;
     private String description;
     private String iconUrl;
-    private CreatorInfo createdBy;
+    private UserInfo createdBy;
     private long memberCount;
     private boolean member;
     private LocalDateTime createdAt;
-
-    @Data
-    @AllArgsConstructor
-    public static class CreatorInfo {
-        private Long id;
-        private String username;
-    }
 }

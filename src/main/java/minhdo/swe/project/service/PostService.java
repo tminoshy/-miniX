@@ -115,14 +115,6 @@ public class PostService {
         return postRepository.findByUserAndIsDeletedFalseOrderByCreatedAtDesc(user, pageable)
                 .map(postMapper::toPostResponse);
     }
-//
-//    public void deletePost(String username, Long postId) {
-//        Post post = findById(postId)
-//                .orElseThrow(() -> new IllegalArgumentException("Post not found: " + postId));
-//        if (!post.getUser().getUsername().equals(username)) {
-//            throw new IllegalArgumentException("You can only delete your own posts");
-//        }
-//        post.setIsDeleted(true);
-//        postRepository.save(post);
-//    }
+
+
 }

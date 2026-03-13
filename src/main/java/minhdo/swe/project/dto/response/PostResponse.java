@@ -11,8 +11,7 @@ public class PostResponse {
     private Long id;
     private String title;
     private String body;
-    private Long userId;
-    private String username;
+    private UserInfo userInfo;
     private Long subId;
     private Integer score;
     private LocalDateTime createdAt;

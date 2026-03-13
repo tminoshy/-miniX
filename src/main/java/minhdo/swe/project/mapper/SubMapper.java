@@ -6,7 +6,7 @@ import minhdo.swe.project.entity.Sub;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = UserMapper.class)
 public interface SubMapper {
 
     @Mapping(source = "sub.id", target = "id")
@@ -28,9 +28,9 @@ public interface SubMapper {
     @Mapping(source = "sub.createdAt", target = "createdAt")
     SubDetailResponse toDetailResponse(Sub sub, long memberCount, boolean isMember);
 
-    default SubDetailResponse.CreatorInfo mapCreator(minhdo.swe.project.entity.User user) {
-        if (user == null)
-            return null;
-        return new SubDetailResponse.CreatorInfo(user.getId(), user.getUsername());
-    }
+//    default SubDetailResponse.CreatorInfo mapCreator(minhdo.swe.project.entity.User user) {
+//        if (user == null)
+//            return null;
+//        return new SubDetailResponse.CreatorInfo(user.getId(), user.getUsername());
+//    }
 }

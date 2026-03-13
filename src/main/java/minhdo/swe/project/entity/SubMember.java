@@ -1,6 +1,8 @@
 package minhdo.swe.project.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -15,6 +17,8 @@ import java.time.LocalDateTime;
         @UniqueConstraint(columnNames = { "user_id", "sub_id" })
 })
 @EntityListeners(AuditingEntityListener.class)
+@Builder
+@AllArgsConstructor
 public class SubMember {
 
     @Id

@@ -43,15 +43,16 @@ public class AuthService {
             throw new IllegalArgumentException("Email already registered");
         }
 
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.USER);
+        User user = User.builder()
+                        .username(request.getUsername())
+                                .email(request.getEmail())
+                                        .passwordHash(passwordEncoder.encode(request.getPassword()))
+                                                .role(Role.USER)
+                                                        .build();
 
-        user = userRepository.save(user);
-
-        return buildAuthResponse(user);
+        return buildAuthResponse(
+                userRepository.save(user)
+        );
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -87,22 +88,28 @@ public class AuthService {
     }
 
     private AuthResponse buildAuthResponse(User user) {
+
         String accessToken = jwtUtil.generateAccessToken(user.getUsername());
         String refreshTokenStr = createRefreshToken(user).getToken();
 
-        AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getCreatedAt());
+        AuthResponse.UserInfoDetail userInfo = AuthResponse.UserInfoDetail.builder()
+                .id(user.getId())
+                    .username(user.getUsername())
+                        .email(user.getEmail())
+                            .createdAt(user.getCreatedAt())
+                                .build();
+
         return new AuthResponse(accessToken, refreshTokenStr, userInfo);
     }
 
     private RefreshToken createRefreshToken(User user) {
-        RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setToken(UUID.randomUUID().toString());
-        refreshToken.setUser(user);
-        refreshToken.setExpiresAt(LocalDateTime.now().plusSeconds(refreshExpirationMs / 1000));
+
+        RefreshToken refreshToken = RefreshToken.builder()
+                        .token(UUID.randomUUID().toString())
+                                .user(user)
+                                        .expiresAt(LocalDateTime.now().plusSeconds(refreshExpirationMs / 1000))
+                                                .build();
+
         return refreshTokenRepository.save(refreshToken);
     }
 }

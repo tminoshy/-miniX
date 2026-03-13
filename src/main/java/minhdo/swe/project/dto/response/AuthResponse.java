@@ -1,6 +1,7 @@
 package minhdo.swe.project.dto.response;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -10,11 +11,12 @@ import java.time.LocalDateTime;
 public class AuthResponse {
     private String accessToken;
     private String refreshToken;
-    private UserInfo user;
+    private UserInfoDetail user;
 
     @Data
     @AllArgsConstructor
-    public static class UserInfo {
+    @Builder
+    public static class UserInfoDetail {
         private Long id;
         private String username;
         private String email;

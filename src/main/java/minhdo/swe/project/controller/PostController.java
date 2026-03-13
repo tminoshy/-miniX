@@ -53,6 +53,9 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
+//    @PostMapping("/{id}/comments")
+//    public ResponseEntity<>
+
     //
 //    @GetMapping("/sub/{subId}")
 //    public ResponseEntity<List<PostResponse>> getPostsBySub(@PathVariable Long subId) {
