@@ -11,6 +11,7 @@ import minhdo.swe.project.entity.User;
 import minhdo.swe.project.security.SecurityUtils;
 import minhdo.swe.project.service.CommentService;
 import minhdo.swe.project.service.PostService;
+import minhdo.swe.project.service.VoteService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
+    private final VoteService voteService;
     private final SecurityUtils securityUtils;
     private final CommentService commentService;
 
@@ -51,12 +53,12 @@ public class PostController {
     public ResponseEntity<PostResponse> vote(
             @PathVariable Long id,
             @Valid @RequestBody VoteRequest request) {
-        return ResponseEntity.ok(postService.vote(id, securityUtils.getCurrentUser(), request));
+        return ResponseEntity.ok(voteService.vote(id, securityUtils.getCurrentUser(), request));
     }
 
     @DeleteMapping("/{id}/vote")
     public ResponseEntity<Void> removeVote(@PathVariable Long id) {
-        postService.removeVote(id, securityUtils.getCurrentUser());
+        voteService.removeVote(id, securityUtils.getCurrentUser());
         return ResponseEntity.noContent().build();
     }
 
