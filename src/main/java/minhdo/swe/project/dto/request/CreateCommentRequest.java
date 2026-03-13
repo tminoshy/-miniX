@@ -9,7 +9,4 @@ public class CreateCommentRequest {
 
     @NotBlank
     private String body;
-
-    @Nullable
-    private Long parentId;
 }

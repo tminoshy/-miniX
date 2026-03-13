@@ -1,16 +1,10 @@
 package minhdo.swe.project.service;
 
 import lombok.RequiredArgsConstructor;
-import minhdo.swe.project.entity.Post;
-import minhdo.swe.project.entity.PostVote;
-import minhdo.swe.project.entity.User;
-import minhdo.swe.project.entity.VoteType;
+import minhdo.swe.project.entity.*;
+import minhdo.swe.project.mapper.CommentMapper;
 import minhdo.swe.project.mapper.PostMapper;
-import minhdo.swe.project.repository.PostRepository;
-import minhdo.swe.project.repository.PostVoteRepository;
-import minhdo.swe.project.repository.SubMemberRepository;
-import minhdo.swe.project.repository.SubRepository;
-import minhdo.swe.project.repository.UserRepository;
+import minhdo.swe.project.repository.*;
 import minhdo.swe.project.dto.request.UpdatePostRequest;
 import minhdo.swe.project.dto.request.VoteRequest;
 import minhdo.swe.project.dto.response.PostResponse;
@@ -30,7 +24,9 @@ public class PostService {
     private final SubRepository subRepository;
     private final PostMapper postMapper;
     private final SubMemberRepository subMemberRepository;
-    public final SubService subService;
+    public final CommentService commentService;
+    private final CommentMapper commentMapper;
+    private final CommentRepository commentRepository;
 
     @Transactional(readOnly = true)
     public PostResponse getPostById(Long id) {
@@ -115,6 +111,5 @@ public class PostService {
         return postRepository.findByUserAndIsDeletedFalseOrderByCreatedAtDesc(user, pageable)
                 .map(postMapper::toPostResponse);
     }
-
 
 }

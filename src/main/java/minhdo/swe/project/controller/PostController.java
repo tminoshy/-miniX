@@ -2,12 +2,18 @@ package minhdo.swe.project.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import minhdo.swe.project.dto.request.CreateCommentRequest;
 import minhdo.swe.project.dto.request.UpdatePostRequest;
 import minhdo.swe.project.dto.request.VoteRequest;
+import minhdo.swe.project.dto.response.CommentResponse;
 import minhdo.swe.project.dto.response.PostResponse;
 import minhdo.swe.project.entity.User;
 import minhdo.swe.project.security.SecurityUtils;
+import minhdo.swe.project.service.CommentService;
 import minhdo.swe.project.service.PostService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +24,7 @@ public class PostController {
 
     private final PostService postService;
     private final SecurityUtils securityUtils;
+    private final CommentService commentService;
 
     @GetMapping("/{id}")
     public ResponseEntity<PostResponse> getPostById(@PathVariable Long id) {
@@ -53,8 +60,17 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
-//    @PostMapping("/{id}/comments")
-//    public ResponseEntity<>
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<Page<CommentResponse>> getComments(@PathVariable("id") Long postId, Pageable pageable) {
+        return ResponseEntity.ok(commentService.getCommentsByPost(postId, pageable));
+    }
+
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<CommentResponse> createComment(@PathVariable("id") Long postId, CreateCommentRequest request) {
+        User currentUser = securityUtils.getCurrentUser();
+        CommentResponse response = commentService.createComment(currentUser, postId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 
     //
 //    @GetMapping("/sub/{subId}")
