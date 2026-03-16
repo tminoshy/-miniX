@@ -39,6 +39,10 @@ public class Comment {
     @Column(nullable = false)
     private Integer score = 0;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean isDeleted = false;
+
     @CreatedDate
     @Column(name = "created_at")
     private LocalDateTime createdAt;

@@ -31,4 +31,34 @@ public class CommentController {
         CommentResponse response = commentService.createComment(currentUser, postId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @PostMapping("/posts/{id}/comments/{commentId}")
+    public ResponseEntity<CommentResponse> createReply(
+            @PathVariable("id") Long postId,
+            @PathVariable("commentId") Long commentId,
+            @RequestBody CreateCommentRequest request) {
+        User currentUser = securityUtils.getCurrentUser();
+        CommentResponse response = commentService.createReply(currentUser, postId, commentId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/posts/{id}/comments/{commentId}")
+    public ResponseEntity<CommentResponse> getComment(
+            @PathVariable("id") Long postId,
+            @PathVariable("commentId") Long commentId) {
+        return ResponseEntity.ok(commentService.getCommentById(postId, commentId));
+    }
+
+    @DeleteMapping("/comments/{id}")
+    public ResponseEntity<Void> deleteComment(@PathVariable("id") Long commentId) {
+        commentService.deleteComment(commentId, securityUtils.getCurrentUser());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/comments/{id}")
+    public ResponseEntity<CommentResponse> updateComment(
+            @PathVariable("id") Long commentId,
+            @jakarta.validation.Valid @RequestBody minhdo.swe.project.dto.request.UpdateCommentRequest request) {
+        return ResponseEntity.ok(commentService.updateComment(commentId, securityUtils.getCurrentUser(), request));
+    }
 }
