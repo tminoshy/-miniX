@@ -7,6 +7,7 @@ import minhdo.swe.project.entity.SavedItemType;
 import minhdo.swe.project.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,8 +16,10 @@ import java.util.Optional;
 @Repository
 public interface SavedItemRepository extends JpaRepository<SavedItem, Long> {
 
+    @EntityGraph(attributePaths = {"post", "post.user", "post.sub", "comment", "comment.user", "comment.post"})
     Page<SavedItem> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
 
+    @EntityGraph(attributePaths = {"post", "post.user", "post.sub", "comment", "comment.user", "comment.post"})
     Page<SavedItem> findByUserAndTypeOrderByCreatedAtDesc(User user, SavedItemType type, Pageable pageable);
 
     Optional<SavedItem> findByUserAndPost(User user, Post post);

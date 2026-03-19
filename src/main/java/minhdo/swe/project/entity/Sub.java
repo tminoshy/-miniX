@@ -21,6 +21,7 @@ public class Sub {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Access(AccessType.PROPERTY)
     private Long id;
 
     @Column(unique = true, nullable = false, length = 21)

@@ -12,7 +12,7 @@ public class PostResponse {
     private String title;
     private String body;
     private UserInfo userInfo;
-    private Long subId;
+    private SubInfo subInfo;
     private Integer score;
     private LocalDateTime createdAt;
 }

@@ -1,6 +1,7 @@
 package minhdo.swe.project.mapper;
 
 import minhdo.swe.project.dto.response.SubDetailResponse;
+import minhdo.swe.project.dto.response.SubInfo;
 import minhdo.swe.project.dto.response.SubResponse;
 import minhdo.swe.project.entity.Sub;
 import org.mapstruct.Mapper;
@@ -27,6 +28,8 @@ public interface SubMapper {
     @Mapping(source = "isMember", target = "member")
     @Mapping(source = "sub.createdAt", target = "createdAt")
     SubDetailResponse toDetailResponse(Sub sub, long memberCount, boolean isMember);
+
+    SubInfo toSubInfo(Sub sub);
 
 //    default SubDetailResponse.CreatorInfo mapCreator(minhdo.swe.project.entity.User user) {
 //        if (user == null)

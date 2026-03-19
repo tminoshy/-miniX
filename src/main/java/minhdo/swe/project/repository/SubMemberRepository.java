@@ -5,6 +5,7 @@ import minhdo.swe.project.entity.SubMember;
 import minhdo.swe.project.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -19,5 +20,6 @@ public interface SubMemberRepository extends JpaRepository<SubMember, Long> {
 
     Optional<SubMember> findByUserAndSub(User user, Sub sub);
 
+    @EntityGraph(attributePaths = {"user"})
     Page<SubMember> findAllBySub(Sub sub, Pageable pageable);
 }
