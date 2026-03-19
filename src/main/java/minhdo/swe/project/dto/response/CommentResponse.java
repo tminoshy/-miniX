@@ -1,13 +1,18 @@
 package minhdo.swe.project.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class CommentResponse {
+@NoArgsConstructor
+@AllArgsConstructor
+public class CommentResponse implements Serializable {
 
     private Long id;
     private String body;

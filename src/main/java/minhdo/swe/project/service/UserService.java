@@ -6,6 +6,7 @@ import minhdo.swe.project.dto.response.UserProfileResponse;
 import minhdo.swe.project.entity.User;
 import minhdo.swe.project.mapper.UserMapper;
 import minhdo.swe.project.repository.UserRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +25,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Cacheable(value = "userProfiles", key = "#username")
     public UserProfileResponse getProfile(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));

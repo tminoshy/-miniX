@@ -14,6 +14,8 @@ import minhdo.swe.project.mapper.CommentMapper;
 import minhdo.swe.project.repository.CommentRepository;
 import minhdo.swe.project.repository.PostRepository;
 import minhdo.swe.project.repository.SubMemberRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -81,6 +83,7 @@ public class CommentService {
         return commentMapper.toCommentResponse(commentRepository.save(reply));
     }
 
+    @Cacheable(value = "comments", key = "#commentId")
     @Transactional(readOnly = true)
     public CommentResponse getCommentById(Long postId, Long commentId) {
         Post post = postRepository.findById(postId)
@@ -93,6 +96,7 @@ public class CommentService {
         return commentMapper.toCommentResponse(comment);
     }
 
+    @CacheEvict(value = "comments", key = "#commentId")
     @Transactional
     public CommentResponse updateComment(Long commentId, User currentUser, minhdo.swe.project.dto.request.UpdateCommentRequest request) {
         Comment comment = commentRepository.findById(commentId)
@@ -107,6 +111,7 @@ public class CommentService {
         return commentMapper.toCommentResponse(commentRepository.save(comment));
     }
 
+    @CacheEvict(value = "comments", key = "#commentId")
     @Transactional
     public void deleteComment(Long commentId, User user) {
         Comment comment = commentRepository.findById(commentId)

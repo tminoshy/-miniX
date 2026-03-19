@@ -14,6 +14,7 @@ import minhdo.swe.project.mapper.CommentMapper;
 import minhdo.swe.project.repository.CommentRepository;
 import minhdo.swe.project.repository.CommentVoteRepository;
 import minhdo.swe.project.repository.SubMemberRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ public class CommentVoteService {
     private final CommentMapper commentMapper;
     private final SubMemberRepository subMemberRepository;
 
+    @CacheEvict(value = "comments", key = "#commentId")
     @Transactional
     public CommentResponse vote(Long commentId, User user, VoteRequest request) {
         VoteType newVote = request.getVoteType();
@@ -58,6 +60,7 @@ public class CommentVoteService {
         return commentMapper.toCommentResponse(comment);
     }
 
+    @CacheEvict(value = "comments", key = "#commentId")
     @Transactional
     public void removeVote(Long commentId, User user) {
         Comment comment = commentRepository.findById(commentId)

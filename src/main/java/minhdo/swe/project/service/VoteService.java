@@ -11,6 +11,7 @@ import minhdo.swe.project.exception.ResourceNotFoundException;
 import minhdo.swe.project.mapper.PostMapper;
 import minhdo.swe.project.repository.PostRepository;
 import minhdo.swe.project.repository.PostVoteRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class VoteService {
     private final PostVoteRepository postVoteRepository;
     private final PostMapper postMapper;
 
+    @CacheEvict(value = "posts", key = "#postId")
     @Transactional
     public PostResponse vote(Long postId, User user, VoteRequest request) {
         VoteType newVote = request.getVoteType();
@@ -49,6 +51,7 @@ public class VoteService {
         return postMapper.toPostResponse(post);
     }
 
+    @CacheEvict(value = "posts", key = "#postId")
     @Transactional
     public void removeVote(Long postId, User user) {
         Post post = postRepository.findById(postId)

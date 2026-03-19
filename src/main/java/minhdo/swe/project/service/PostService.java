@@ -8,6 +8,8 @@ import minhdo.swe.project.repository.UserRepository;
 import minhdo.swe.project.dto.request.UpdatePostRequest;
 import minhdo.swe.project.dto.response.PostResponse;
 import minhdo.swe.project.exception.ResourceNotFoundException;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostMapper postMapper;
 
+    @Cacheable(value = "posts", key = "#id")
     @Transactional(readOnly = true)
     public PostResponse getPostById(Long id) {
         return postRepository.findById(id)
@@ -29,6 +32,7 @@ public class PostService {
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", String.valueOf(id)));
     }
 
+    @CacheEvict(value = "posts", key = "#id")
     @Transactional
     public PostResponse updatePost(Long id, User user, UpdatePostRequest request) {
         var post = postRepository.findById(id)
@@ -45,6 +49,7 @@ public class PostService {
         return postMapper.toPostResponse(postRepository.save(post));
     }
 
+    @CacheEvict(value = "posts", key = "#id")
     @Transactional
     public void deletePost(Long id, User user) {
         var post = postRepository.findById(id)
