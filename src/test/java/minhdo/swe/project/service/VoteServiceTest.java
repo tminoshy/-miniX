@@ -2,6 +2,7 @@ package minhdo.swe.project.service;
 
 import minhdo.swe.project.dto.request.VoteRequest;
 import minhdo.swe.project.dto.response.PostResponse;
+import minhdo.swe.project.dto.response.SubInfo;
 import minhdo.swe.project.dto.response.UserInfo;
 import minhdo.swe.project.entity.*;
 import minhdo.swe.project.exception.ResourceNotFoundException;
@@ -47,7 +48,8 @@ class VoteServiceTest {
         UserInfo userInfo = new UserInfo();
         userInfo.setId(1L);
         userInfo.setUsername("voter");
-        postResponse = new PostResponse(1L, "Post", "Body", userInfo, 1L, 10, LocalDateTime.now());
+        SubInfo subInfo = new SubInfo(1L, "testsub");
+        postResponse = new PostResponse(1L, "Post", "Body", userInfo, subInfo, 10, LocalDateTime.now());
     }
 
     // ─── vote ────────────────────────────────────────────────────────

@@ -2,6 +2,7 @@ package minhdo.swe.project.service;
 
 import minhdo.swe.project.dto.request.UpdatePostRequest;
 import minhdo.swe.project.dto.response.PostResponse;
+import minhdo.swe.project.dto.response.SubInfo;
 import minhdo.swe.project.dto.response.UserInfo;
 import minhdo.swe.project.entity.Post;
 import minhdo.swe.project.entity.Sub;
@@ -64,7 +65,9 @@ class PostServiceTest {
         UserInfo userInfo = new UserInfo();
         userInfo.setId(1L);
         userInfo.setUsername("owner");
-        postResponse = new PostResponse(1L, "Test Title", "Test Body", userInfo, 1L, 0, LocalDateTime.now());
+        SubInfo subInfo = SubInfo.builder().id(1L).name("sub").build();
+
+        postResponse = new PostResponse(1L, "Test Title", "Test Body", userInfo, subInfo, 0, LocalDateTime.now());
     }
 
     // ─── getPostById ─────────────────────────────────────────────────

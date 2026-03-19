@@ -252,7 +252,8 @@ class SubServiceTest {
         UserInfo userInfo = new UserInfo();
         userInfo.setId(1L);
         userInfo.setUsername("creator");
-        PostResponse response = new PostResponse(2L, "New Post", "Post body", userInfo, 1L, 0, LocalDateTime.now());
+        SubInfo subInfo = new SubInfo(1L, "testsub");
+        PostResponse response = new PostResponse(2L, "New Post", "Post body", userInfo, subInfo, 0, LocalDateTime.now());
 
         when(subRepository.findByName("testsub")).thenReturn(Optional.of(sub));
         when(memberRepository.existsByUserAndSub(user, sub)).thenReturn(true);
@@ -290,7 +291,8 @@ class SubServiceTest {
         UserInfo userInfo = new UserInfo();
         userInfo.setId(1L);
         userInfo.setUsername("creator");
-        PostResponse response = new PostResponse(1L, "T", null, userInfo, 1L, 0, LocalDateTime.now());
+        SubInfo subInfo = new SubInfo(1L, "testsub");
+        PostResponse response = new PostResponse(1L, "T", null, userInfo, subInfo, 0, LocalDateTime.now());
 
         when(subRepository.findByName("testsub")).thenReturn(Optional.of(sub));
         when(postRepository.findBySubOrderByCreatedAtDesc(sub, pageable)).thenReturn(postPage);
