@@ -13,9 +13,14 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "sub_members", uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "user_id", "sub_id" })
-})
+@Table(name = "sub_members",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "sub_id"})
+        },
+        indexes = {
+                @Index(name = "idx_sub_member_sub", columnList = "sub_id"),
+        }
+)
 @EntityListeners(AuditingEntityListener.class)
 @Builder
 @AllArgsConstructor

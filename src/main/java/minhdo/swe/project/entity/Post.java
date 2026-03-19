@@ -12,10 +12,14 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "posts")
 @Builder
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@Table(name = "posts", indexes = {
+        @Index(name = "idx_post_user", columnList = "user_id"),
+        @Index(name = "idx_post_sub", columnList = "sub_id"),
+        @Index(name = "idx_post_created_at", columnList = "created_at"),
+})
 public class Post {
 
     @Id

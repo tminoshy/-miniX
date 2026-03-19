@@ -8,10 +8,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "saved_items", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_id", "post_id"}),
-        @UniqueConstraint(columnNames = {"user_id", "comment_id"})
-})
+@Table(name = "saved_items",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "post_id"}),
+                @UniqueConstraint(columnNames = {"user_id", "comment_id"})
+        },
+        indexes = {
+                @Index(name = "idx_saved_item_user", columnList = "user_id"),
+        }
+)
 @Data
 @Builder
 @NoArgsConstructor

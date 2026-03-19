@@ -14,6 +14,10 @@ import java.time.LocalDateTime;
 @Entity
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@Table(name = "comments", indexes = {
+        @Index(name = "idx_comment_post", columnList = "post_id"),
+        @Index(name = "idx_comment_created_at", columnList = "created_at"),
+})
 public class Comment {
 
     @Id
