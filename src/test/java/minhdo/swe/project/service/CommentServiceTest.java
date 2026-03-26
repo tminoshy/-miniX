@@ -241,7 +241,7 @@ class CommentServiceTest {
     void deleteComment_byModerator_success() {
         User moderator = User.builder().id(2L).username("mod").build();
         when(commentRepository.findById(1L)).thenReturn(Optional.of(comment));
-        when(subMemberRepository.existsByUserAndSubAndRole(moderator, sub, SubMember.Role.Moderator)).thenReturn(true);
+        when(subMemberRepository.existsByUserAndSubAndRole(moderator, sub, SubMembership.Role.Moderator)).thenReturn(true);
 
         commentService.deleteComment(1L, moderator);
 
@@ -253,7 +253,7 @@ class CommentServiceTest {
     void deleteComment_notAuthorized_throwsException() {
         User otherUser = User.builder().id(3L).username("other").build();
         when(commentRepository.findById(1L)).thenReturn(Optional.of(comment));
-        when(subMemberRepository.existsByUserAndSubAndRole(otherUser, sub, SubMember.Role.Moderator)).thenReturn(false);
+        when(subMemberRepository.existsByUserAndSubAndRole(otherUser, sub, SubMembership.Role.Moderator)).thenReturn(false);
 
         assertThatThrownBy(() -> commentService.deleteComment(1L, otherUser))
                 .isInstanceOf(NotAllowedException.class);

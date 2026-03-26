@@ -1,15 +1,11 @@
 package minhdo.swe.project.service;
 
 import minhdo.swe.project.dto.request.LoginRequest;
-import minhdo.swe.project.dto.request.RefreshTokenRequest;
 import minhdo.swe.project.dto.request.RegisterRequest;
 import minhdo.swe.project.dto.response.AuthResponse;
-import minhdo.swe.project.entity.RefreshToken;
 import minhdo.swe.project.entity.Role;
 import minhdo.swe.project.entity.User;
-import minhdo.swe.project.repository.RefreshTokenRepository;
 import minhdo.swe.project.repository.UserRepository;
-import minhdo.swe.project.security.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -32,19 +27,17 @@ import static org.mockito.Mockito.*;
 class AuthServiceTest {
 
     @Mock private UserRepository userRepository;
-    @Mock private RefreshTokenRepository refreshTokenRepository;
     @Mock private PasswordEncoder passwordEncoder;
-    @Mock private JwtUtil jwtUtil;
+    @Mock private TokenService tokenService;
     @Mock private AuthenticationManager authenticationManager;
 
     @InjectMocks private AuthService authService;
 
     private User testUser;
+    private AuthResponse expectedResponse;
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(authService, "refreshExpirationMs", 604800000L);
-
         testUser = User.builder()
                 .id(1L)
                 .username("testuser")
@@ -52,6 +45,13 @@ class AuthServiceTest {
                 .passwordHash("encoded_password")
                 .role(Role.USER)
                 .createdAt(LocalDateTime.now())
+                .build();
+
+        expectedResponse = AuthResponse.builder()
+                .accessToken("access-token")
+                .refreshToken("refresh-token")
+                .user(AuthResponse.UserInfoDetail.builder()
+                        .id(1L).username("testuser").email("test@example.com").build())
                 .build();
     }
 
@@ -69,17 +69,15 @@ class AuthServiceTest {
         when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
         when(passwordEncoder.encode("password123")).thenReturn("encoded_password");
         when(userRepository.save(any(User.class))).thenReturn(testUser);
-        when(jwtUtil.generateAccessToken("testuser")).thenReturn("access-token");
-        when(refreshTokenRepository.save(any(RefreshToken.class)))
-                .thenAnswer(inv -> inv.getArgument(0));
+        when(tokenService.buildAuthResponse(testUser)).thenReturn(expectedResponse);
 
-        AuthResponse response = authService.register(request);
+        AuthResponse result = authService.register(request);
 
-        assertThat(response.getAccessToken()).isEqualTo("access-token");
-        assertThat(response.getRefreshToken()).isNotNull();
-        assertThat(response.getUser().getUsername()).isEqualTo("testuser");
-        assertThat(response.getUser().getEmail()).isEqualTo("test@example.com");
+        assertThat(result.getAccessToken()).isEqualTo("access-token");
+        assertThat(result.getRefreshToken()).isEqualTo("refresh-token");
+        assertThat(result.getUser().getUsername()).isEqualTo("testuser");
         verify(userRepository).save(any(User.class));
+        verify(tokenService).buildAuthResponse(testUser);
     }
 
     @Test
@@ -95,6 +93,7 @@ class AuthServiceTest {
         assertThatThrownBy(() -> authService.register(request))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Username already taken");
+        verify(userRepository, never()).save(any());
     }
 
     @Test
@@ -111,6 +110,7 @@ class AuthServiceTest {
         assertThatThrownBy(() -> authService.register(request))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Email already registered");
+        verify(userRepository, never()).save(any());
     }
 
     // ─── Login ───────────────────────────────────────────────────────
@@ -122,16 +122,15 @@ class AuthServiceTest {
         request.setPassword("password123");
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        when(jwtUtil.generateAccessToken("testuser")).thenReturn("access-token");
-        when(refreshTokenRepository.save(any(RefreshToken.class)))
-                .thenAnswer(inv -> inv.getArgument(0));
+        when(tokenService.buildAuthResponse(testUser)).thenReturn(expectedResponse);
 
-        AuthResponse response = authService.login(request);
+        AuthResponse result = authService.login(request);
 
         verify(authenticationManager).authenticate(
                 any(UsernamePasswordAuthenticationToken.class));
-        assertThat(response.getAccessToken()).isEqualTo("access-token");
-        assertThat(response.getUser().getUsername()).isEqualTo("testuser");
+        assertThat(result.getAccessToken()).isEqualTo("access-token");
+        assertThat(result.getUser().getUsername()).isEqualTo("testuser");
+        verify(tokenService).buildAuthResponse(testUser);
     }
 
     @Test
@@ -145,64 +144,5 @@ class AuthServiceTest {
         assertThatThrownBy(() -> authService.login(request))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("User not found");
-    }
-
-    // ─── Refresh ─────────────────────────────────────────────────────
-
-    @Test
-    void refresh_success() {
-        RefreshTokenRequest request = new RefreshTokenRequest();
-        request.setRefreshToken("valid-token");
-
-        RefreshToken storedToken = RefreshToken.builder()
-                .id(1L)
-                .token("valid-token")
-                .user(testUser)
-                .expiresAt(LocalDateTime.now().plusDays(7))
-                .build();
-
-        when(refreshTokenRepository.findByToken("valid-token")).thenReturn(Optional.of(storedToken));
-        when(jwtUtil.generateAccessToken("testuser")).thenReturn("new-access-token");
-        when(refreshTokenRepository.save(any(RefreshToken.class)))
-                .thenAnswer(inv -> inv.getArgument(0));
-
-        AuthResponse response = authService.refreshTokenService.refresh(request);
-
-        verify(refreshTokenRepository).delete(storedToken);
-        assertThat(response.getAccessToken()).isEqualTo("new-access-token");
-        assertThat(response.getUser().getUsername()).isEqualTo("testuser");
-    }
-
-    @Test
-    void refresh_invalidToken_throwsException() {
-        RefreshTokenRequest request = new RefreshTokenRequest();
-        request.setRefreshToken("invalid-token");
-
-        when(refreshTokenRepository.findByToken("invalid-token")).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> authService.refreshTokenService.refresh(request))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid refresh token");
-    }
-
-    @Test
-    void refresh_expiredToken_throwsException() {
-        RefreshTokenRequest request = new RefreshTokenRequest();
-        request.setRefreshToken("expired-token");
-
-        RefreshToken expiredToken = RefreshToken.builder()
-                .id(1L)
-                .token("expired-token")
-                .user(testUser)
-                .expiresAt(LocalDateTime.now().minusDays(1))
-                .build();
-
-        when(refreshTokenRepository.findByToken("expired-token")).thenReturn(Optional.of(expiredToken));
-
-        assertThatThrownBy(() -> authService.refreshTokenService.refresh(request))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Refresh token has expired");
-
-        verify(refreshTokenRepository).delete(expiredToken);
     }
 }

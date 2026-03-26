@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
+@Builder
 public class AuthResponse {
     private String accessToken;
     private String refreshToken;

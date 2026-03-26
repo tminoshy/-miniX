@@ -6,6 +6,7 @@ import minhdo.swe.project.dto.response.AuthResponse;
 import minhdo.swe.project.entity.RefreshToken;
 import minhdo.swe.project.entity.User;
 import minhdo.swe.project.repository.RefreshTokenRepository;
+import minhdo.swe.project.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,10 +16,10 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-public class RefreshTokenService {
+public class TokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
-    private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
     @Value("${jwt.refresh-token-expiration}")
     private long refreshExpirationMs;
@@ -37,7 +38,7 @@ public class RefreshTokenService {
         refreshTokenRepository.delete(refreshToken);
 
         User user = refreshToken.getUser();
-        return authService.buildAuthResponse(user);
+        return buildAuthResponse(user);
     }
 
     RefreshToken createRefreshToken(User user) {
@@ -49,5 +50,20 @@ public class RefreshTokenService {
                                                 .build();
 
         return refreshTokenRepository.save(refreshToken);
+    }
+
+    public AuthResponse buildAuthResponse(User user) {
+
+        String accessToken = jwtUtil.generateAccessToken(user.getUsername());
+        String refreshTokenStr = createRefreshToken(user).getToken();
+
+        AuthResponse.UserInfoDetail userInfo = AuthResponse.UserInfoDetail.builder()
+                .id(user.getId())
+                    .username(user.getUsername())
+                        .email(user.getEmail())
+                            .createdAt(user.getCreatedAt())
+                                .build();
+
+        return new AuthResponse(accessToken, refreshTokenStr, userInfo);
     }
 }

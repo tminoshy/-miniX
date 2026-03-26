@@ -1,5 +1,11 @@
 **Unreleased**
 
+[0.1.1] - 2026-03-26
+Fixed: Circular dependency between AuthService and RefreshTokenService
+
+Changed:
+- TokenService : renamed from RefreshTokenService, move buildAuthResponse from AuthService
+- AuthService : removed buildAuthResponse
 
 [0.1.0] - 2026-03-26
 

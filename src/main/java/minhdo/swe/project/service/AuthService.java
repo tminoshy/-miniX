@@ -6,11 +6,9 @@ import minhdo.swe.project.dto.request.RegisterRequest;
 import minhdo.swe.project.dto.response.AuthResponse;
 import minhdo.swe.project.entity.Role;
 import minhdo.swe.project.entity.User;
-import minhdo.swe.project.repository.RefreshTokenRepository;
 import minhdo.swe.project.repository.UserRepository;
 import minhdo.swe.project.security.JwtUtil;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,9 +21,8 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
-    private final RefreshTokenService refreshTokenService;
+    private final TokenService tokenService;
 
 
     public AuthResponse register(RegisterRequest request) {
@@ -43,9 +40,8 @@ public class AuthService {
                                                 .role(Role.USER)
                                                         .build();
 
-        return buildAuthResponse(
-                userRepository.save(user)
-        );
+        return tokenService.buildAuthResponse(
+                userRepository.save(user));
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -55,27 +51,12 @@ public class AuthService {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        return buildAuthResponse(user);
+        return tokenService.buildAuthResponse(user);
     }
 
     @Transactional
     public void logout(String authHeader) {
         // Optionally: could parse token to find user and delete their refresh tokens
-    }
-
-    public AuthResponse buildAuthResponse(User user) {
-
-        String accessToken = jwtUtil.generateAccessToken(user.getUsername());
-        String refreshTokenStr = refreshTokenService.createRefreshToken(user).getToken();
-
-        AuthResponse.UserInfoDetail userInfo = AuthResponse.UserInfoDetail.builder()
-                .id(user.getId())
-                    .username(user.getUsername())
-                        .email(user.getEmail())
-                            .createdAt(user.getCreatedAt())
-                                .build();
-
-        return new AuthResponse(accessToken, refreshTokenStr, userInfo);
     }
 
 }

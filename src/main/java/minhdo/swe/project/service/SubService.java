@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import minhdo.swe.project.dto.request.*;
 import minhdo.swe.project.dto.response.*;
 import minhdo.swe.project.entity.Sub;
-import minhdo.swe.project.entity.SubMember;
+import minhdo.swe.project.entity.SubMembership;
 import minhdo.swe.project.entity.User;
 import minhdo.swe.project.exception.ResourceNotFoundException;
 import minhdo.swe.project.mapper.SubMapper;
@@ -42,10 +42,10 @@ public class SubService {
         sub.setCreatedBy(user);
         sub = subRepository.save(sub);
 
-        SubMember member = new SubMember();
+        SubMembership member = new SubMembership();
         member.setUser(user);
         member.setSub(sub);
-        member.setRole(SubMember.Role.Moderator);
+        member.setRole(SubMembership.Role.Moderator);
         subMemberRepository.save(member);
 
         return subMapper.toSubResponse(sub, 1);
@@ -67,7 +67,7 @@ public class SubService {
         Sub sub = subRepository.findByName(name)
                 .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
 
-        boolean isModerator = subMemberRepository.existsByUserAndSubAndRole(currentUser, sub, SubMember.Role.Moderator);
+        boolean isModerator = subMemberRepository.existsByUserAndSubAndRole(currentUser, sub, SubMembership.Role.Moderator);
         if (!isModerator) {
             throw new AccessDeniedException("Only moderators can update this sub");
         }
@@ -93,10 +93,10 @@ public class SubService {
             throw new IllegalArgumentException("Already a member");
         }
 
-        SubMember member = new SubMember();
+        SubMembership member = new SubMembership();
         member.setUser(currentUser);
         member.setSub(sub);
-        member.setRole(SubMember.Role.Member);
+        member.setRole(SubMembership.Role.Member);
         subMemberRepository.save(member);
     }
 
@@ -105,10 +105,10 @@ public class SubService {
         Sub sub = subRepository.findByName(name)
                 .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
 
-        SubMember member = subMemberRepository.findByUserAndSub(currentUser, sub)
+        SubMembership member = subMemberRepository.findByUserAndSub(currentUser, sub)
                 .orElseThrow(() -> new IllegalArgumentException("Not a member"));
 
-        if (SubMember.Role.Moderator.equals(member.getRole())) {
+        if (SubMembership.Role.Moderator.equals(member.getRole())) {
             throw new IllegalArgumentException("Moderators cannot leave");
         }
 

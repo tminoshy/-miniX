@@ -6,7 +6,7 @@ import minhdo.swe.project.dto.response.CommentResponse;
 import minhdo.swe.project.entity.Comment;
 import minhdo.swe.project.entity.Post;
 import minhdo.swe.project.entity.Sub;
-import minhdo.swe.project.entity.SubMember;
+import minhdo.swe.project.entity.SubMembership;
 import minhdo.swe.project.entity.User;
 import minhdo.swe.project.exception.NotAllowedException;
 import minhdo.swe.project.exception.ResourceNotFoundException;
@@ -120,7 +120,7 @@ public class CommentService {
 
         Sub sub = comment.getPost().getSub();
         boolean isOwner = comment.getUser().equals(user);
-        boolean isModerator = subMemberRepository.existsByUserAndSubAndRole(user, sub, SubMember.Role.Moderator);
+        boolean isModerator = subMemberRepository.existsByUserAndSubAndRole(user, sub, SubMembership.Role.Moderator);
 
         if (!isOwner && !isModerator) {
             throw new NotAllowedException("You are not allowed to delete this comment");

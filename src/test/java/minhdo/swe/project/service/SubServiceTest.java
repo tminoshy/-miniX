@@ -4,7 +4,7 @@ import minhdo.swe.project.dto.request.CreateSubRequest;
 import minhdo.swe.project.dto.request.UpdateSubRequest;
 import minhdo.swe.project.dto.response.*;
 import minhdo.swe.project.entity.Sub;
-import minhdo.swe.project.entity.SubMember;
+import minhdo.swe.project.entity.SubMembership;
 import minhdo.swe.project.entity.User;
 import minhdo.swe.project.mapper.SubMapper;
 import minhdo.swe.project.mapper.UserMapper;
@@ -75,7 +75,7 @@ class SubServiceTest {
 
         when(subRepository.existsByName("testsub")).thenReturn(false);
         when(subRepository.save(any(Sub.class))).thenReturn(sub);
-        when(subMemberRepository.save(any(SubMember.class))).thenReturn(new SubMember());
+        when(subMemberRepository.save(any(SubMembership.class))).thenReturn(new SubMembership());
         when(subMapper.toSubResponse(any(Sub.class), eq(1L))).thenReturn(subResponse);
 
         SubResponse result = subService.create(user, request);
@@ -83,7 +83,7 @@ class SubServiceTest {
         assertThat(result.getName()).isEqualTo("testsub");
         verify(subRepository).save(any(Sub.class));
         verify(subMemberRepository).save(argThat(member ->
-                member.getRole() == SubMember.Role.Moderator));
+                member.getRole() == SubMembership.Role.Moderator));
     }
 
     @Test
@@ -127,7 +127,7 @@ class SubServiceTest {
         UpdateSubRequest request = new UpdateSubRequest("Updated desc", "new-icon.png");
 
         when(subRepository.findByName("testsub")).thenReturn(Optional.of(sub));
-        when(subMemberRepository.existsByUserAndSubAndRole(user, sub, SubMember.Role.Moderator)).thenReturn(true);
+        when(subMemberRepository.existsByUserAndSubAndRole(user, sub, SubMembership.Role.Moderator)).thenReturn(true);
         when(subRepository.save(any(Sub.class))).thenReturn(sub);
         when(subMemberRepository.countBySub(sub)).thenReturn(10L);
         when(subMapper.toDetailResponse(any(Sub.class), eq(10L), eq(true))).thenReturn(subDetailResponse);
@@ -143,7 +143,7 @@ class SubServiceTest {
         UpdateSubRequest request = new UpdateSubRequest("desc", "icon.png");
 
         when(subRepository.findByName("testsub")).thenReturn(Optional.of(sub));
-        when(subMemberRepository.existsByUserAndSubAndRole(otherUser, sub, SubMember.Role.Moderator)).thenReturn(false);
+        when(subMemberRepository.existsByUserAndSubAndRole(otherUser, sub, SubMembership.Role.Moderator)).thenReturn(false);
 
         assertThatThrownBy(() -> subService.update("testsub", otherUser, request))
                 .isInstanceOf(AccessDeniedException.class)
@@ -160,7 +160,7 @@ class SubServiceTest {
         subService.join("testsub", otherUser);
 
         verify(subMemberRepository).save(argThat(member ->
-                member.getRole() == SubMember.Role.Member &&
+                member.getRole() == SubMembership.Role.Member &&
                 member.getUser().equals(otherUser)));
     }
 
@@ -178,8 +178,8 @@ class SubServiceTest {
 
     @Test
     void leave_success() {
-        SubMember member = SubMember.builder()
-                .id(1L).user(otherUser).sub(sub).role(SubMember.Role.Member).build();
+        SubMembership member = SubMembership.builder()
+                .id(1L).user(otherUser).sub(sub).role(SubMembership.Role.Member).build();
 
         when(subRepository.findByName("testsub")).thenReturn(Optional.of(sub));
         when(subMemberRepository.findByUserAndSub(otherUser, sub)).thenReturn(Optional.of(member));
@@ -191,8 +191,8 @@ class SubServiceTest {
 
     @Test
     void leave_moderator_throwsException() {
-        SubMember moderator = SubMember.builder()
-                .id(1L).user(user).sub(sub).role(SubMember.Role.Moderator).build();
+        SubMembership moderator = SubMembership.builder()
+                .id(1L).user(user).sub(sub).role(SubMembership.Role.Moderator).build();
 
         when(subRepository.findByName("testsub")).thenReturn(Optional.of(sub));
         when(subMemberRepository.findByUserAndSub(user, sub)).thenReturn(Optional.of(moderator));
@@ -217,8 +217,8 @@ class SubServiceTest {
     @Test
     void showAllMember_success() {
         Pageable pageable = PageRequest.of(0, 20);
-        SubMember member = SubMember.builder().user(user).sub(sub).role(SubMember.Role.Member).build();
-        Page<SubMember> memberPage = new PageImpl<>(List.of(member));
+        SubMembership member = SubMembership.builder().user(user).sub(sub).role(SubMembership.Role.Member).build();
+        Page<SubMembership> memberPage = new PageImpl<>(List.of(member));
 
         UserProfileResponse profileResponse = new UserProfileResponse(1L, "creator", null, LocalDateTime.now());
 

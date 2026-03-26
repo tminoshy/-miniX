@@ -1,10 +1,12 @@
 package minhdo.swe.project.controller;
 
+import lombok.RequiredArgsConstructor;
 import minhdo.swe.project.dto.request.LoginRequest;
 import minhdo.swe.project.dto.request.RefreshTokenRequest;
 import minhdo.swe.project.dto.request.RegisterRequest;
 import minhdo.swe.project.dto.response.AuthResponse;
 import minhdo.swe.project.service.AuthService;
+import minhdo.swe.project.service.TokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +15,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
-
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
+    private final TokenService tokenService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
@@ -33,7 +33,7 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshTokenRequest request) {
-        return ResponseEntity.ok(authService.refreshTokenService.refresh(request, authService));
+        return ResponseEntity.ok(tokenService.refresh(request));
     }
 
     @PostMapping("/logout")

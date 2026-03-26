@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @Builder
 @AllArgsConstructor
-public class SubMember {
+public class SubMembership {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
