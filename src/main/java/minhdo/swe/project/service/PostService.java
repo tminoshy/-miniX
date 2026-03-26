@@ -1,13 +1,18 @@
 package minhdo.swe.project.service;
 
 import lombok.RequiredArgsConstructor;
-import minhdo.swe.project.entity.User;
-import minhdo.swe.project.mapper.PostMapper;
-import minhdo.swe.project.repository.PostRepository;
-import minhdo.swe.project.repository.UserRepository;
+import minhdo.swe.project.dto.request.CreatePostRequest;
 import minhdo.swe.project.dto.request.UpdatePostRequest;
 import minhdo.swe.project.dto.response.PostResponse;
+import minhdo.swe.project.entity.Post;
+import minhdo.swe.project.entity.Sub;
+import minhdo.swe.project.entity.User;
 import minhdo.swe.project.exception.ResourceNotFoundException;
+import minhdo.swe.project.mapper.PostMapper;
+import minhdo.swe.project.repository.PostRepository;
+import minhdo.swe.project.repository.SubMemberRepository;
+import minhdo.swe.project.repository.SubRepository;
+import minhdo.swe.project.repository.UserRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -21,6 +26,8 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final SubRepository subRepository;
+    private final SubMemberRepository subMemberRepository;
     private final PostMapper postMapper;
 
     @Cacheable(value = "posts", key = "#id")
@@ -70,4 +77,27 @@ public class PostService {
                 .map(postMapper::toPostResponse);
     }
 
+    @Transactional
+    public PostResponse createPost(User currentUser, String subName, CreatePostRequest request) {
+        Sub sub = subRepository.findByName(subName)
+                .orElseThrow(() -> new ResourceNotFoundException("Sub", "name", subName));
+
+        if (!subMemberRepository.existsByUserAndSub(currentUser, sub)) {
+            throw new IllegalArgumentException("user is not in sub");
+        }
+
+        Post post = postMapper.toEntity(request);
+        post.setUser(currentUser);
+        post.setSub(sub);
+
+        return postMapper.toPostResponse(postRepository.save(post));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PostResponse> getPostsBySub(String subName, Pageable pageable) {
+        Sub sub = subRepository.findByName(subName)
+                .orElseThrow(() -> new ResourceNotFoundException("Sub", "subName", subName));
+        return postRepository.findBySubOrderByCreatedAtDesc(sub, pageable)
+                .map(postMapper::toPostResponse);
+    }
 }

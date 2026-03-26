@@ -166,7 +166,7 @@ class AuthServiceTest {
         when(refreshTokenRepository.save(any(RefreshToken.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
 
-        AuthResponse response = authService.refresh(request);
+        AuthResponse response = authService.refreshTokenService.refresh(request);
 
         verify(refreshTokenRepository).delete(storedToken);
         assertThat(response.getAccessToken()).isEqualTo("new-access-token");
@@ -180,7 +180,7 @@ class AuthServiceTest {
 
         when(refreshTokenRepository.findByToken("invalid-token")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> authService.refresh(request))
+        assertThatThrownBy(() -> authService.refreshTokenService.refresh(request))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid refresh token");
     }
@@ -199,7 +199,7 @@ class AuthServiceTest {
 
         when(refreshTokenRepository.findByToken("expired-token")).thenReturn(Optional.of(expiredToken));
 
-        assertThatThrownBy(() -> authService.refresh(request))
+        assertThatThrownBy(() -> authService.refreshTokenService.refresh(request))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Refresh token has expired");
 

@@ -1,5 +1,6 @@
 package minhdo.swe.project.service;
 
+import minhdo.swe.project.dto.request.CreatePostRequest;
 import minhdo.swe.project.dto.request.UpdatePostRequest;
 import minhdo.swe.project.dto.response.PostResponse;
 import minhdo.swe.project.dto.response.SubInfo;
@@ -10,6 +11,8 @@ import minhdo.swe.project.entity.User;
 import minhdo.swe.project.exception.ResourceNotFoundException;
 import minhdo.swe.project.mapper.PostMapper;
 import minhdo.swe.project.repository.PostRepository;
+import minhdo.swe.project.repository.SubMemberRepository;
+import minhdo.swe.project.repository.SubRepository;
 import minhdo.swe.project.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,9 +38,12 @@ class PostServiceTest {
 
     @Mock private PostRepository postRepository;
     @Mock private UserRepository userRepository;
+    @Mock private SubRepository subRepository;
+    @Mock private SubMemberRepository subMemberRepository;
     @Mock private PostMapper postMapper;
 
-    @InjectMocks private PostService postService;
+    @InjectMocks
+    private PostService postService;
 
     private User owner;
     private User otherUser;
@@ -47,6 +53,7 @@ class PostServiceTest {
 
     @BeforeEach
     void setUp() {
+
         owner = User.builder().id(1L).username("owner").build();
         otherUser = User.builder().id(2L).username("other").build();
         sub = Sub.builder().id(1L).name("testsub").build();
@@ -184,6 +191,83 @@ class PostServiceTest {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> postService.getPostsByUser(99L, pageable))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    // ─── createPost ──────────────────────────────────────────────────
+
+    @Test
+    void createPost_success() {
+        CreatePostRequest request = new CreatePostRequest();
+        request.setTitle("New Post");
+        request.setBody("Post body");
+
+        Post newPost = Post.builder().id(2L).title("New Post").body("Post body")
+                .user(owner).sub(sub).score(0).isDeleted(false).build();
+        UserInfo userInfo = new UserInfo();
+        userInfo.setId(1L);
+        userInfo.setUsername("owner");
+        SubInfo subInfo = SubInfo.builder().id(1L).name("testsub").build();
+        PostResponse response = new PostResponse(2L, "New Post", "Post body", userInfo, subInfo, 0, LocalDateTime.now());
+
+        when(subRepository.findByName("testsub")).thenReturn(Optional.of(sub));
+        when(subMemberRepository.existsByUserAndSub(owner, sub)).thenReturn(true);
+        when(postMapper.toEntity(request)).thenReturn(newPost);
+        when(postRepository.save(any(Post.class))).thenReturn(newPost);
+        when(postMapper.toPostResponse(newPost)).thenReturn(response);
+
+        PostResponse result = postService.createPost(owner, "testsub", request);
+
+        assertThat(result.getTitle()).isEqualTo("New Post");
+        verify(postRepository).save(newPost);
+    }
+
+    @Test
+    void createPost_notMember_throwsException() {
+        CreatePostRequest request = new CreatePostRequest();
+        request.setTitle("New Post");
+
+        when(subRepository.findByName("testsub")).thenReturn(Optional.of(sub));
+        when(subMemberRepository.existsByUserAndSub(otherUser, sub)).thenReturn(false);
+
+        assertThatThrownBy(() -> postService.createPost(otherUser, "testsub", request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("user is not in sub");
+    }
+
+    @Test
+    void createPost_subNotFound_throwsException() {
+        CreatePostRequest request = new CreatePostRequest();
+        request.setTitle("New Post");
+
+        when(subRepository.findByName("unknown")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> postService.createPost(owner, "unknown", request))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    // ─── getPostsBySub ───────────────────────────────────────────────
+
+    @Test
+    void getPostsBySub_success() {
+        Pageable pageable = PageRequest.of(0, 20);
+        Page<Post> postPage = new PageImpl<>(List.of(post));
+
+        when(subRepository.findByName("testsub")).thenReturn(Optional.of(sub));
+        when(postRepository.findBySubOrderByCreatedAtDesc(sub, pageable)).thenReturn(postPage);
+        when(postMapper.toPostResponse(post)).thenReturn(postResponse);
+
+        Page<PostResponse> result = postService.getPostsBySub("testsub", pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+    }
+
+    @Test
+    void getPostsBySub_subNotFound_throwsException() {
+        Pageable pageable = PageRequest.of(0, 20);
+        when(subRepository.findByName("unknown")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> postService.getPostsBySub("unknown", pageable))
                 .isInstanceOf(ResourceNotFoundException.class);
     }
 }

@@ -73,7 +73,7 @@ public class SubController {
             @PathVariable("name") String subName,
             @Valid @RequestBody CreatePostRequest request) {
         User user = securityUtils.getCurrentUser();
-        PostResponse response = subService.createPost(user, subName, request);
+        PostResponse response = postService.createPost(user, subName, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -86,6 +86,6 @@ public class SubController {
     public ResponseEntity<Page<PostResponse>> getAllPosts(
             @PathVariable("name") String subName,
             Pageable pageable) {
-        return ResponseEntity.ok(subService.getPostsBySub(subName, pageable));
+        return ResponseEntity.ok(postService.getPostsBySub(subName, pageable));
     }
 }

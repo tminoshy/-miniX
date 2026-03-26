@@ -2,10 +2,8 @@ package minhdo.swe.project.service;
 
 import lombok.RequiredArgsConstructor;
 import minhdo.swe.project.dto.request.LoginRequest;
-import minhdo.swe.project.dto.request.RefreshTokenRequest;
 import minhdo.swe.project.dto.request.RegisterRequest;
 import minhdo.swe.project.dto.response.AuthResponse;
-import minhdo.swe.project.entity.RefreshToken;
 import minhdo.swe.project.entity.Role;
 import minhdo.swe.project.entity.User;
 import minhdo.swe.project.repository.RefreshTokenRepository;
@@ -19,21 +17,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+    private final RefreshTokenService refreshTokenService;
 
-    @Value("${jwt.refresh-token-expiration}")
-    private long refreshExpirationMs;
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -66,31 +59,14 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthResponse refresh(RefreshTokenRequest request) {
-        RefreshToken refreshToken = refreshTokenRepository.findByToken(request.getRefreshToken())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
-
-        if (refreshToken.isExpired()) {
-            refreshTokenRepository.delete(refreshToken);
-            throw new IllegalArgumentException("Refresh token has expired");
-        }
-
-        // Rotate: delete old, issue new
-        refreshTokenRepository.delete(refreshToken);
-
-        User user = refreshToken.getUser();
-        return buildAuthResponse(user);
-    }
-
-    @Transactional
     public void logout(String authHeader) {
         // Optionally: could parse token to find user and delete their refresh tokens
     }
 
-    private AuthResponse buildAuthResponse(User user) {
+    public AuthResponse buildAuthResponse(User user) {
 
         String accessToken = jwtUtil.generateAccessToken(user.getUsername());
-        String refreshTokenStr = createRefreshToken(user).getToken();
+        String refreshTokenStr = refreshTokenService.createRefreshToken(user).getToken();
 
         AuthResponse.UserInfoDetail userInfo = AuthResponse.UserInfoDetail.builder()
                 .id(user.getId())
@@ -102,14 +78,4 @@ public class AuthService {
         return new AuthResponse(accessToken, refreshTokenStr, userInfo);
     }
 
-    private RefreshToken createRefreshToken(User user) {
-
-        RefreshToken refreshToken = RefreshToken.builder()
-                        .token(UUID.randomUUID().toString())
-                                .user(user)
-                                        .expiresAt(LocalDateTime.now().plusSeconds(refreshExpirationMs / 1000))
-                                                .build();
-
-        return refreshTokenRepository.save(refreshToken);
-    }
 }
