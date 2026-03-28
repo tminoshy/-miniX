@@ -84,37 +84,6 @@ public class SubService {
         return subMapper.toDetailResponse(sub, memberCount, true);
     }
 
-    @Transactional
-    public void join(String name, User currentUser) {
-        Sub sub = subRepository.findByName(name)
-                .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
-
-        if (subMemberRepository.existsByUserAndSub(currentUser, sub)) {
-            throw new IllegalArgumentException("Already a member");
-        }
-
-        SubMembership member = new SubMembership();
-        member.setUser(currentUser);
-        member.setSub(sub);
-        member.setRole(SubMembership.Role.Member);
-        subMemberRepository.save(member);
-    }
-
-    @Transactional
-    public void leave(String name, User currentUser) {
-        Sub sub = subRepository.findByName(name)
-                .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
-
-        SubMembership member = subMemberRepository.findByUserAndSub(currentUser, sub)
-                .orElseThrow(() -> new IllegalArgumentException("Not a member"));
-
-        if (SubMembership.Role.Moderator.equals(member.getRole())) {
-            throw new IllegalArgumentException("Moderators cannot leave");
-        }
-
-        subMemberRepository.delete(member);
-    }
-
     @Transactional(readOnly = true)
     public Page<UserProfileResponse> showAllMember(String subName, Pageable pageable) {
         Sub sub = subRepository.findByName(subName)

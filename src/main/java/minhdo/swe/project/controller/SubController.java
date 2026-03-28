@@ -7,6 +7,7 @@ import minhdo.swe.project.dto.response.*;
 import minhdo.swe.project.entity.User;
 import minhdo.swe.project.security.SecurityUtils;
 import minhdo.swe.project.service.PostService;
+import minhdo.swe.project.service.SubMembershipService;
 import minhdo.swe.project.service.SubService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class SubController {
 
     private final SubService subService;
+    private final SubMembershipService subMembershipService;
     private final SecurityUtils securityUtils;
     private final PostService postService;
 
@@ -49,14 +51,14 @@ public class SubController {
     @PostMapping("/{name}/join")
     public ResponseEntity<String> joinSub(@PathVariable String name) {
         User currentUser = securityUtils.getCurrentUser();
-        subService.join(name, currentUser);
+        subMembershipService.join(name, currentUser);
         return ResponseEntity.ok("Join successfully");
     }
 
     @DeleteMapping("/{name}/leave")
     public ResponseEntity<String> leaveSub(@PathVariable String name) {
         User currentUser = securityUtils.getCurrentUser();
-        subService.leave(name, currentUser);
+        subMembershipService.leave(name, currentUser);
         return ResponseEntity.ok("Leave successfully");
     }
 

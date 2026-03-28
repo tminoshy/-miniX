@@ -150,68 +150,6 @@ class SubServiceTest {
                 .hasMessage("Only moderators can update this sub");
     }
 
-    // ─── join ────────────────────────────────────────────────────────
-
-    @Test
-    void join_success() {
-        when(subRepository.findByName("testsub")).thenReturn(Optional.of(sub));
-        when(subMemberRepository.existsByUserAndSub(otherUser, sub)).thenReturn(false);
-
-        subService.join("testsub", otherUser);
-
-        verify(subMemberRepository).save(argThat(member ->
-                member.getRole() == SubMembership.Role.Member &&
-                member.getUser().equals(otherUser)));
-    }
-
-    @Test
-    void join_alreadyMember_throwsException() {
-        when(subRepository.findByName("testsub")).thenReturn(Optional.of(sub));
-        when(subMemberRepository.existsByUserAndSub(user, sub)).thenReturn(true);
-
-        assertThatThrownBy(() -> subService.join("testsub", user))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Already a member");
-    }
-
-    // ─── leave ───────────────────────────────────────────────────────
-
-    @Test
-    void leave_success() {
-        SubMembership member = SubMembership.builder()
-                .id(1L).user(otherUser).sub(sub).role(SubMembership.Role.Member).build();
-
-        when(subRepository.findByName("testsub")).thenReturn(Optional.of(sub));
-        when(subMemberRepository.findByUserAndSub(otherUser, sub)).thenReturn(Optional.of(member));
-
-        subService.leave("testsub", otherUser);
-
-        verify(subMemberRepository).delete(member);
-    }
-
-    @Test
-    void leave_moderator_throwsException() {
-        SubMembership moderator = SubMembership.builder()
-                .id(1L).user(user).sub(sub).role(SubMembership.Role.Moderator).build();
-
-        when(subRepository.findByName("testsub")).thenReturn(Optional.of(sub));
-        when(subMemberRepository.findByUserAndSub(user, sub)).thenReturn(Optional.of(moderator));
-
-        assertThatThrownBy(() -> subService.leave("testsub", user))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Moderators cannot leave");
-    }
-
-    @Test
-    void leave_notMember_throwsException() {
-        when(subRepository.findByName("testsub")).thenReturn(Optional.of(sub));
-        when(subMemberRepository.findByUserAndSub(otherUser, sub)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> subService.leave("testsub", otherUser))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Not a member");
-    }
-
     // ─── showAllMember ───────────────────────────────────────────────
 
     @Test
